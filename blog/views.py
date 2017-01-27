@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Post
+from .models import Post, Comment
 from django.utils import timezone
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 
 
 def post_list(request):
@@ -10,7 +10,17 @@ def post_list(request):
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    return render(request, 'blog/post_detail.html', {'post': post})
+    comments = Comment.objects.filter(post=post).order_by('-created_date')
+    comment_form = CommentForm()
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.post = post
+            comment.save()
+            return redirect(request.path)
+    return render(request, 'blog/post_detail.html', {'post': post, 'comment_form': comment_form, 'comments':comments})
+
 
 def post_new(request):
     if request.method == "POST":

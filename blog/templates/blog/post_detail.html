@@ -11,4 +11,21 @@
             <h1>{{ post.title }}</h1>
             <p>{{ post.text|linebreaksbr }}</p>
         </div>
+
+        <form action="{{ request.path }}" method="POST">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button class="btn btn-success" type="submit">Save</button>
+        </form>
+
+        {% for comment in comments %}
+
+            <div>
+                <h3>{{ comment.author_name }}</h3>
+                <div>{{ comment.created_date }}</div>
+                <p>{{ comment.text }}</p>
+            </div>
+        {% empty %}
+            <h3 style="font-style:italic">No comments</h3>
+        {% endfor %}
     {% endblock %}
